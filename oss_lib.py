@@ -329,11 +329,13 @@ class OSS:
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
         
-    def measure_absorbance(self, exp_id: int, target_id: LocationId, wavelength: int):
+    def measure_absorbance(self, exp_id: int, target_id: LocationId, wavelength: int) -> int:
         logger.info(f"OSS: Experiment {exp_id}: Measure absorbance of {target_id} at {wavelength} nm")
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
-        
+
+        return 1
+
     # ---------------------------------------------------------------
     
 # ===================================================================

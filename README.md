@@ -1,10 +1,17 @@
 ### app_serial_dilution.py
-    This is the python script which represent the researcher code for
+    This is the python script which represents the researcher code for
     the serial dilution experiment. This can be executed with the 
     following command
 
         python app_serial_dilution.py
 
+
+### app_game_of_life.py
+    This is the python script which represents the researcher code for
+    the game of life experiment. This can be executed with the 
+    following command
+
+        python app_game_of_life.py
 
 ### oss_lib.py
     This implements the main OSS library including the technician API. 
@@ -15,6 +22,8 @@
         load
         transfer
         mix
+        incubate
+        measure_absorbance
 
 
 ### oss_utils.py
