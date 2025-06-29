@@ -12,7 +12,7 @@
     
         experiment_init
         experiment_end
-        bring
+        load
         transfer
         mix
 
@@ -37,4 +37,5 @@
         aspirate
         dispense
         discard_tip
+        attach_tip
 

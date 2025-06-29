@@ -2,6 +2,9 @@ from oss_utils import Location, logger
 
 class LiquidHandler:
 
+    def attach_tip(self):
+        logger.debug(f'LH: attach tip')
+        
     def move_pipette(self, location: Location):
         logger.debug(f'LH: move pipette to {location}')
         

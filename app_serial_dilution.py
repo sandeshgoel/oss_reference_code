@@ -23,10 +23,10 @@ for i in range(num_wells):
     
 # transfer base solvent to each well
 for i in range(num_wells):     
-    oss.bring(exp_id, base_vol, base, well_id[i])
+    oss.load(exp_id, base_vol, base, well_id[i])
 
 # transfer stock solution to first well and mix
-oss.bring(exp_id, stock_vol, stock, well_id[0])
+oss.load(exp_id, stock_vol, stock, well_id[0])
 oss.mix(exp_id, well_id[0])
 
 # serial dilute up to the second last well
