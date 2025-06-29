@@ -68,7 +68,10 @@ class Location:
         self.well_id = well_id
         
     def __str__(self):
-        return f"[{self.equipment}:slot {self.slot}:{self.labware}:{self.well_id}]"
+        if self.labware == Labware.wellplate:
+            return f"[{self.equipment}:slot-{self.slot}:{self.labware}:{self.well_id}]"
+        else:
+            return f"[{self.equipment}:slot-{self.slot}:{self.labware}]"
         
 class LocationId:
     def __init__(self, id: str):

@@ -17,22 +17,28 @@ study_type = 'absorbance'
 wavelength = 900
 
 # create a list of id's, one for each well
-well_id = []
+loc_id = []
 for i in range(num_wells): 
-    well_id.append(LocationId(str(i)))
+    loc_id.append(LocationId(str(i)))
+# create id's for base and stock reservoirs
+base_id = LocationId('base')
+stock_id = LocationId('stock')
+
+oss.load(exp_id, base_vol*num_wells, base, base_id)
+oss.load(exp_id, stock_vol, stock, stock_id)
     
 # transfer base solvent to each well
 for i in range(num_wells):     
-    oss.load(exp_id, base_vol, base, well_id[i])
+    oss.transfer(exp_id, base_vol, base_id, loc_id[i])
 
 # transfer stock solution to first well and mix
-oss.load(exp_id, stock_vol, stock, well_id[0])
-oss.mix(exp_id, well_id[0])
+oss.transfer(exp_id, stock_vol, stock_id, loc_id[0])
+oss.mix(exp_id, loc_id[0])
 
 # serial dilute up to the second last well
 for i in range(num_wells-2):
-    oss.transfer(exp_id, stock_vol, well_id[i], well_id[i+1])
-    oss.mix(exp_id, well_id[i+1])
+    oss.transfer(exp_id, stock_vol, loc_id[i], loc_id[i+1])
+    oss.mix(exp_id, loc_id[i+1])
     
 # conduct spectroscopy study of all wells
 #oss.spectroscopy_study(exp_id, study_type, wavelength)
