@@ -11,7 +11,7 @@ logger = logging.getLogger()
 class Equipment(enum.Enum):
     liquid_handler = 1,
     incubator = 2,
-    spectrocope = 3
+    spectroscope = 3
     
     def __str__(self) -> str:
         return self.name

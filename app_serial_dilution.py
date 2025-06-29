@@ -20,10 +20,12 @@ wavelength = 900
 loc_id = []
 for i in range(num_wells): 
     loc_id.append(LocationId(str(i)))
+    
 # create id's for base and stock reservoirs
 base_id = LocationId('base')
 stock_id = LocationId('stock')
 
+# load base solvent and stock solution 
 oss.load(exp_id, base_vol*num_wells, base, base_id)
 oss.load(exp_id, stock_vol, stock, stock_id)
     
@@ -41,7 +43,7 @@ for i in range(num_wells-2):
     oss.mix(exp_id, loc_id[i+1])
     
 # conduct spectroscopy study of all wells
-#oss.spectroscopy_study(exp_id, study_type, wavelength)
+oss.measure_absorbance(exp_id, loc_id[0], wavelength)
 
 # terminate the experiment
 oss.experiment_end(exp_id)
