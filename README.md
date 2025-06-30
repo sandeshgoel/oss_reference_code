@@ -5,13 +5,19 @@
 
         python app_serial_dilution.py
 
-
 ### app_game_of_life.py
     This is the python script which represents the researcher code for
     the game of life experiment. This can be executed with the 
     following command
 
         python app_game_of_life.py
+
+### app_gradient_mixing.py
+    This is the python script which represents the researcher code for
+    the gradient mixing experiment. This can be executed with the 
+    following command
+
+        python app_gradient_mixing.py
 
 ### oss_lib.py
     This implements the main OSS library including the technician API. 
