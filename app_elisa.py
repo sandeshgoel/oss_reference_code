@@ -43,7 +43,7 @@ loc_id = []
 for i in range(num_samples): 
     loc_id.append(LocationId(str(i)))
     
-# create id's for 4 solutions
+# create id's for solutions
 capture_id = LocationId('capture')
 wash_id = LocationId('wash')
 blocking_id = LocationId('blocking')
@@ -64,16 +64,14 @@ oss.load(exp_id, substrate_vol*num_samples, substrate, substrate_id)
 oss.load(exp_id, stop_solution_vol*num_samples, stop_solution, stop_id)
 
 # coat plate with capture antibody
-for i in range(num_samples):
-    oss.transfer(exp_id, capture_antibody_vol, capture_id, loc_id[i])
+oss.transfer(exp_id, capture_antibody_vol, capture_id, loc_id)
     
 # wash plate
 for i in range(num_samples):
     oss.wash(exp_id, loc_id[i])
     
 # block nonspecific sites
-for i in range(num_samples):
-    oss.transfer(exp_id, blocking_buffer_vol, blocking_id, loc_id[i])
+oss.transfer(exp_id, blocking_buffer_vol, blocking_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
     
 # wash plate again
@@ -81,8 +79,7 @@ for i in range(num_samples):
     oss.wash(exp_id, loc_id[i])
 
 # add samples
-for i in range(num_samples):
-    oss.transfer(exp_id, sample_vol, sample_id, loc_id[i])
+oss.transfer(exp_id, sample_vol, sample_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
     
 # wash plate
@@ -90,8 +87,7 @@ for i in range(num_samples):
     oss.wash(exp_id, loc_id[i])
 
 # add detection antibody
-for i in range(num_samples):
-    oss.transfer(exp_id, detection_antibody_vol, detection_id, loc_id[i])
+oss.transfer(exp_id, detection_antibody_vol, detection_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
 
 # wash plate
@@ -99,8 +95,7 @@ for i in range(num_samples):
     oss.wash(exp_id, loc_id[i])
 
 # add enzyme-conjugate
-for i in range(num_samples):
-    oss.transfer(exp_id, conjugate_vol, conjugate_id, loc_id[i])
+oss.transfer(exp_id, conjugate_vol, conjugate_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
     
 # wash plate
@@ -108,13 +103,11 @@ for i in range(num_samples):
     oss.wash(exp_id, loc_id[i])
 
 # add substrate
-for i in range(num_samples):
-    oss.transfer(exp_id, substrate_vol, substrate_id, loc_id[i])
+oss.transfer(exp_id, substrate_vol, substrate_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time, dark=True)
 
 # stop reaction
-for i in range(num_samples):
-    oss.transfer(exp_id, stop_solution_vol, stop_id, loc_id[i])
+oss.transfer(exp_id, stop_solution_vol, stop_id, loc_id)
     
 # measure absorbance
 absorbance = oss.measure_absorbance(exp_id, loc_id, wavelength)
