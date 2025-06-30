@@ -327,17 +327,22 @@ class OSS:
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
     
-    def incubate(self, exp_id: int, target_id: LocationId, temperature: int, time: int):
-        logger.info(f"OSS: Experiment {exp_id}: Incubate {target_id} at {temperature} degrees for {time} minutes")
+    def wash(self, exp_id: int, target_id: LocationId):
+        logger.info(f"OSS: Experiment {exp_id}: Wash {target_id}")
+        exp = self.__get_experiment(exp_id)
+        # TODO: procedure
+                
+    def incubate(self, exp_id: int, target_id: list[LocationId], temperature: int, time: int, dark:bool = False):
+        logger.info(f"OSS: Experiment {exp_id}: Incubate {[str(id) for id in target_id]} at {temperature} degrees for {time} minutes")
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
         
-    def measure_absorbance(self, exp_id: int, target_id: LocationId, wavelength: int) -> int:
-        logger.info(f"OSS: Experiment {exp_id}: Measure absorbance of {target_id} at {wavelength} nm")
+    def measure_absorbance(self, exp_id: int, target_id: list[LocationId], wavelength: int) -> list[int]:
+        logger.info(f"OSS: Experiment {exp_id}: Measure absorbance of {[str(id) for id in target_id]} at {wavelength} nm")
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
 
-        return 1
+        return [1] * len(target_id)
 
     # ---------------------------------------------------------------
     

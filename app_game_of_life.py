@@ -16,6 +16,7 @@ dead_sol = 'dead solution'
 vol = 10
 num_generations = 10
 absorbance_threshold = 5
+wavelength = 600
 
 # create a list of id's, one for each well
 loc_id = []
@@ -62,14 +63,10 @@ for gen in range(num_generations):
                 oss.transfer(exp_id, vol, dead_id, loc_id[i*num_cols+j])
                     
     # measure absorbance in each cell
-    result = []
-    for i in range(num_rows):
-        result.append([0 for j in range(num_cols)])
-        
+    absorbance = oss.measure_absorbance(exp_id, loc_id, wavelength)            
     for i in range(num_rows):
         for j in range(num_cols):
-            result[i][j] = oss.measure_absorbance(exp_id, loc_id[i*num_cols+j], 900)            
-            if result[i][j] > absorbance_threshold:
+            if absorbance[i*num_cols+j]  > absorbance_threshold:
                 wells[i][j] = 1
             else:
                 wells[i][j] = 0

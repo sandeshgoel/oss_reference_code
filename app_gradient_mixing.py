@@ -14,6 +14,7 @@ tot_vol = 100
 num_mixes = 8
 lowest_percent = 10
 step_percent = 10
+wavelength = 600
 
 # create a list of id's, one for each well
 loc_id = []
@@ -37,8 +38,7 @@ for i in range(num_mixes):
     oss.mix(exp_id, loc_id[i])
     
 # analyze each well
-for i in range(num_mixes):
-    oss.measure_absorbance(exp_id, loc_id[i], 600)
+absorbance = oss.measure_absorbance(exp_id, loc_id, wavelength)
 
 # terminate the experiment
 oss.experiment_end(exp_id)
