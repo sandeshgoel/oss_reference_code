@@ -266,10 +266,11 @@ class OSS:
             exp.set_location(dest_id, dest)
 
             # operator: prepare the destination
-            self.operator.place(dest)
+            self.operator.command(f'Move in place {dest}')
     
         # operator: bring reagent from store to reservoir
-        self.operator.move(vol, solution, exp.get_location(dest_id))
+        #self.operator.move(vol, solution, exp.get_location(dest_id))
+        self.operator.command(f'Move {vol}ul of {solution} to {exp.get_location(dest_id)}')
 
     def transfer(self, exp_id: int, vol: int, source_id: LocationId, 
                  dest_id: LocationId | list[LocationId], discard_tip:bool = True):
@@ -307,8 +308,10 @@ class OSS:
                 exp.set_location(id, dest)
 
                 # operator: prepare the destination
-                if is_new: self.operator.place(dest)
-        
+                if is_new: 
+                    #self.operator.place(dest)
+                    self.operator.command(f'Move in place {dest}')
+                    
             # LH: move solution from source to destination
             self.lh.move_pipette(exp.get_location(source_id))
             self.lh.aspirate(vol)

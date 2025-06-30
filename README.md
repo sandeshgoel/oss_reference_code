@@ -35,8 +35,7 @@
     This is a stub for the operator API, and includes all the commands
     executed by the human operator. Following APIs are supported:
     
-        place
-        move
+        command
 
 ### lh_lib.py
     This is a stub for the Liquid Handler API, and includes all the commands 
