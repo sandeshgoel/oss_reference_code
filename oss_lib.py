@@ -9,6 +9,9 @@ from oss_utils import well_id_int_to_str, well_id_str_to_int, logger
 # Experiment class definition    
 
 class Experiment:
+    """
+    @private
+    """
     def __init__(self, exp_id: int, name:str):
         """
         Initialize an Experiment object.
@@ -141,10 +144,10 @@ class OSS:
     
     # ---------------------------------------------------------------
     # OSS state
-    next_exp_id = 0
-    exp_list = {}
-    operator = operator_lib.Operator()
-    lh = lh_lib.LiquidHandler()
+    _next_exp_id = 0
+    _exp_list = {}
+    _operator = operator_lib.Operator()
+    _lh = lh_lib.LiquidHandler()
     
     # ---------------------------------------------------------------
     # Experiment control functions
@@ -159,11 +162,11 @@ class OSS:
         Returns:
             int: Experiment ID
         """
-        OSS.next_exp_id += 1
-        logger.info(f"OSS: Experiment {OSS.next_exp_id}: Start {name}")
-        new_exp = Experiment(OSS.next_exp_id, name)
-        OSS.exp_list[OSS.next_exp_id] = new_exp
-        return OSS.next_exp_id
+        OSS._next_exp_id += 1
+        logger.info(f"OSS: Experiment {OSS._next_exp_id}: Start {name}")
+        new_exp = Experiment(OSS._next_exp_id, name)
+        OSS._exp_list[OSS._next_exp_id] = new_exp
+        return OSS._next_exp_id
 
     def experiment_end(self, exp_id: int):
         """
@@ -176,8 +179,8 @@ class OSS:
             None
         """
         logger.info(f"OSS: Experiment {exp_id}: End")
-        if exp_id in OSS.exp_list:
-            del OSS.exp_list[exp_id]
+        if exp_id in OSS._exp_list:
+            del OSS._exp_list[exp_id]
         else:
             raise Exception("Experiment does not exist")
 
@@ -185,8 +188,8 @@ class OSS:
     # internal helper functions
     
     def __get_experiment(self, exp_id: int):
-        if exp_id in OSS.exp_list:
-            return OSS.exp_list[exp_id]
+        if exp_id in OSS._exp_list:
+            return OSS._exp_list[exp_id]
         else:
             raise Exception("Experiment does not exist")
         
@@ -243,13 +246,13 @@ class OSS:
         The physical location is always a reservoir.
 
         Args:
-        exp_id (int): Experiment id
-        vol (int): Volume of the solution to load
-        solution (str): Name of the solution to load
-        dest_id (LocationId): Location id of the destination
+            exp_id (int): Experiment id
+            vol (int): Volume of the solution to load
+            solution (str): Name of the solution to load
+            dest_id (LocationId): Location id of the destination
 
         Raises:
-        Exception: No empty slot in liquid handler
+            Exception: No empty slot in liquid handler
         """
         logger.info(f"OSS: Experiment {exp_id}: Load {vol}ul of {solution} to {dest_id}")
 
@@ -266,11 +269,11 @@ class OSS:
             exp.set_location(dest_id, dest)
 
             # operator: prepare the destination
-            self.operator.command(f'Move in place {dest}')
+            self._operator.command(f'Move in place {dest}')
     
         # operator: bring reagent from store to reservoir
         #self.operator.move(vol, solution, exp.get_location(dest_id))
-        self.operator.command(f'Move {vol}ul of {solution} to {exp.get_location(dest_id)}')
+        self._operator.command(f'Move {vol}ul of {solution} to {exp.get_location(dest_id)}')
 
     def transfer(self, exp_id: int, vol: int, source_id: LocationId, 
                  dest_id: LocationId | list[LocationId], discard_tip:bool = True):
@@ -278,14 +281,14 @@ class OSS:
         Transfer a given volume of a solution from a source location id to a destination location id (or a list of destination location ids).
 
         Args:
-        exp_id (int): Experiment id
-        vol (int): Volume of the solution to transfer
-        source_id (LocationId): Location id of the source
-        dest_id (LocationId | list[LocationId]): Location id of the destination(s)
-        discard_tip (bool, optional): Whether to discard the tip after the transfer. Defaults to True.
+            exp_id (int): Experiment id
+            vol (int): Volume of the solution to transfer
+            source_id (LocationId): Location id of the source
+            dest_id (LocationId | list[LocationId]): Location id of the destination(s)
+            discard_tip (bool, optional): Whether to discard the tip after the transfer. Defaults to True.
 
         Raises:
-        Exception: Source location does not exist
+            Exception: Source location does not exist
         """
         logger.info(f"OSS: Experiment {exp_id}: Transfer {vol}ul from {source_id} to {dest_id}")
 
@@ -310,16 +313,16 @@ class OSS:
                 # operator: prepare the destination
                 if is_new: 
                     #self.operator.place(dest)
-                    self.operator.command(f'Move in place {dest}')
+                    self._operator.command(f'Move in place {dest}')
                     
             # LH: move solution from source to destination
-            self.lh.move_pipette(exp.get_location(source_id))
-            self.lh.aspirate(vol)
-            self.lh.move_pipette(exp.get_location(id))
-            self.lh.dispense(vol)
+            self._lh.move_pipette(exp.get_location(source_id))
+            self._lh.aspirate(vol)
+            self._lh.move_pipette(exp.get_location(id))
+            self._lh.dispense(vol)
         
         # discard tip if required
-        if discard_tip: self.lh.discard_tip()
+        if discard_tip: self._lh.discard_tip()
         
 
     def mix(self, exp_id: int, dest_id: LocationId, vol: int, mix_count: int = 3):
@@ -351,24 +354,34 @@ class OSS:
         if  dest.equipment != Equipment.liquid_handler:
             lh_dest, is_new = self.__decide_location(exp, vol, 1)
             exp.set_location(dest_id, lh_dest)            
-            if is_new: self.operator.command(f'Move in place {lh_dest}')
-            self.operator.command(f'Move {dest} to {lh_dest}')
+            if is_new: self._operator.command(f'Move in place {lh_dest}')
+            self._operator.command(f'Move {dest} to {lh_dest}')
             
         # TODO: check if pipette tip can handle vol
         
         # mix it now
-        self.lh.move_pipette(lh_dest)
+        self._lh.move_pipette(lh_dest)
         for i in range(mix_count):
-            self.lh.aspirate(vol)
-            self.lh.dispense(vol)
+            self._lh.aspirate(vol)
+            self._lh.dispense(vol)
             
         # move it back to original location
         if dest.equipment != Equipment.liquid_handler:
             exp.set_location(dest_id, dest)
-            self.operator.command(f'Move {lh_dest} to {dest}')        
+            self._operator.command(f'Move {lh_dest} to {dest}')        
         
     
     def wash(self, exp_id: int, target_id: LocationId):
+        """
+        Wash the specified target location id.
+
+        Args:
+            exp_id (int): Experiment id
+            target_id (LocationId): Location id of the target
+
+        Raises:
+            Exception: If the target location does not exist
+        """
         logger.info(f"OSS: Experiment {exp_id}: Wash {target_id}")
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
