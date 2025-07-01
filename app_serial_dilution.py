@@ -1,4 +1,4 @@
-from oss_utils import LocationId
+from oss_utils import LocationId, CustomReagent
 import oss_lib
 
 # instantiate the class OSS
@@ -9,11 +9,10 @@ exp_id = oss.experiment_init('Serial Dilution')
 
 # parameters of the experiment
 num_wells = 8
-base = 'base_solvent'
-stock = 'my_reagent'
+base = CustomReagent('base_solvent')
+stock = CustomReagent('my_reagent')
 base_vol = 9
 stock_vol = 1
-study_type = 'absorbance'
 wavelength = 900
 
 # create a list of id's, one for each well

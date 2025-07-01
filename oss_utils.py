@@ -1,12 +1,18 @@
 import enum
 import logging
 
+# -------------------------------------------------------------------
+# Logger initialization
+
 logging.basicConfig(
     level=logging.DEBUG, 
     format='%(asctime)s %(message)s',
     handlers=[logging.FileHandler('oss.log'), logging.StreamHandler()]
     )
 logger = logging.getLogger()
+
+# -------------------------------------------------------------------
+# Equipment class
 
 class Equipment(enum.Enum):
     liquid_handler = 1,
@@ -17,6 +23,9 @@ class Equipment(enum.Enum):
         return self.name
     
 LH_MAX_SLOTS = 12
+
+# -------------------------------------------------------------------
+# Labware class
 
 class Labware (enum.Enum):
     reservoir = 1,
@@ -60,6 +69,9 @@ def well_id_str_to_int(well_id: str) -> int:
 def well_id_int_to_str(well_id: int) -> str:
     return chr(well_id // WELLPLATE_ROW_SIZE + ord('A')) + str(well_id % WELLPLATE_ROW_SIZE)
 
+# -------------------------------------------------------------------
+# Location class
+
 class Location:
     def __init__(self, equipment: Equipment, slot: int, labware: Labware, well_id: str):
         self.equipment = equipment
@@ -72,6 +84,9 @@ class Location:
             return f"[{self.equipment}:slot-{self.slot}:{self.labware}:{self.well_id}]"
         else:
             return f"[{self.equipment}:slot-{self.slot}:{self.labware}]"
+
+# -------------------------------------------------------------------
+# Location id class
         
 class LocationId:
     def __init__(self, id: str):
@@ -79,3 +94,52 @@ class LocationId:
         
     def __str__(self):
         return f'id {self.id}'
+    
+# -------------------------------------------------------------------
+# Reagent class
+
+from abc import ABC
+
+class Reagent(ABC):
+    """Abstract base class for all reagents"""
+    
+    def __init__(self, name: str):
+        self.name = name
+    
+    def __str__(self) -> str:
+        return f"{self.name}"
+    
+class StandardReagent(Reagent):
+    """Predefined standard reagents"""
+    
+    # Predefined list of standard reagents
+    STANDARD_REAGENTS = [
+        'Water',
+        'Acetone',
+        'Ethanol',
+        'Benzene',
+        'Toluene',
+        'Hexane',
+        'Heptane',
+        'Octane',
+    ]
+    
+    def __init__(self, name: str):
+        if name not in self.STANDARD_REAGENTS:
+            raise ValueError(f"'{name}' is not a standard reagent. "
+                           f"Available reagents: {self.STANDARD_REAGENTS}")
+        super().__init__(name)
+    
+    @classmethod
+    def list_available(cls) -> list[str]:
+        """Return list of available standard reagents"""
+        return cls.STANDARD_REAGENTS.copy()
+
+
+class CustomReagent(Reagent):
+    """User-defined custom reagents"""
+    
+    def __init__(self, name: str):
+        super().__init__('custom-'+name)
+        
+# -------------------------------------------------------------------

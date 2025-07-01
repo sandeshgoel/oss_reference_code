@@ -1,7 +1,7 @@
 import datetime
 import operator_lib
 import lh_lib
-from oss_utils import Location, LocationId, Equipment, Labware
+from oss_utils import Location, LocationId, Equipment, Labware, Reagent
 from oss_utils import LH_MAX_SLOTS, WELLPLATE_MAX_WELLS, WELLPLATE_ROW_SIZE
 from oss_utils import well_id_int_to_str, well_id_str_to_int, logger
 
@@ -237,7 +237,7 @@ class OSS:
     # Experiment actions 
     
     #
-    def load(self, exp_id: int, vol: int, solution: str, dest_id: LocationId):
+    def load(self, exp_id: int, vol: int, solution: Reagent, dest_id: LocationId):
         """
         Load a given volume of a solution to a specified location id. 
         The physical location is always a reservoir.
