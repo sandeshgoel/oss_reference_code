@@ -322,10 +322,51 @@ class OSS:
         if discard_tip: self.lh.discard_tip()
         
 
-    def mix(self, exp_id: int, dest_id: LocationId):
-        logger.info(f"OSS: Experiment {exp_id}: Mix {dest_id}")
+    def mix(self, exp_id: int, dest_id: LocationId, vol: int, mix_count: int = 3):
+        """
+        Mix a specified volume of liquid at a given destination location a certain number of times.
+
+        Args:
+            exp_id (int): Experiment ID.
+            dest_id (LocationId): The location ID where the mixing should occur.
+            vol (int): Volume of the liquid to be mixed.
+            mix_count (int, optional): Number of times the mixing should occur. Defaults to 3.
+
+        Raises:
+            Exception: If the destination location does not exist.
+
+        The function ensures the destination is within a liquid handler. If not, it moves the 
+        destination to the liquid handler, performs the mix operation the specified number of times, 
+        and then returns the destination to its original location if necessary.
+        """
+
+        logger.info(f"OSS: Experiment {exp_id}: Mix {dest_id} {mix_count} times")
         exp = self.__get_experiment(exp_id)
-        # TODO: procedure
+        
+        if not exp.is_exist_location(dest_id):
+            raise Exception("Destination location does not exist")
+        
+        # mix happens in an LH, so if the destination is not in the LH, move it there
+        lh_dest = dest = exp.get_location(dest_id)
+        if  dest.equipment != Equipment.liquid_handler:
+            lh_dest, is_new = self.__decide_location(exp, vol, 1)
+            exp.set_location(dest_id, lh_dest)            
+            if is_new: self.operator.command(f'Move in place {lh_dest}')
+            self.operator.command(f'Move {dest} to {lh_dest}')
+            
+        # TODO: check if pipette tip can handle vol
+        
+        # mix it now
+        self.lh.move_pipette(lh_dest)
+        for i in range(mix_count):
+            self.lh.aspirate(vol)
+            self.lh.dispense(vol)
+            
+        # move it back to original location
+        if dest.equipment != Equipment.liquid_handler:
+            exp.set_location(dest_id, dest)
+            self.operator.command(f'Move {lh_dest} to {dest}')        
+        
     
     def wash(self, exp_id: int, target_id: LocationId):
         logger.info(f"OSS: Experiment {exp_id}: Wash {target_id}")

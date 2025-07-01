@@ -3,7 +3,7 @@ import logging
 
 logging.basicConfig(
     level=logging.DEBUG, 
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s %(message)s',
     handlers=[logging.FileHandler('oss.log'), logging.StreamHandler()]
     )
 logger = logging.getLogger()

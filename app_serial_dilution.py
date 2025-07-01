@@ -35,12 +35,12 @@ for i in range(num_wells):
 
 # transfer stock solution to first well and mix
 oss.transfer(exp_id, stock_vol, stock_id, loc_id[0])
-oss.mix(exp_id, loc_id[0])
+oss.mix(exp_id, loc_id[0], base_vol+stock_vol)
 
 # serial dilute up to the second last well
 for i in range(num_wells-2):
     oss.transfer(exp_id, stock_vol, loc_id[i], loc_id[i+1])
-    oss.mix(exp_id, loc_id[i+1])
+    oss.mix(exp_id, loc_id[i+1], base_vol+stock_vol)
     
 # conduct spectroscopy study of all wells
 result = oss.measure_absorbance(exp_id, loc_id, wavelength)

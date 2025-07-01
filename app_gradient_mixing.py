@@ -35,7 +35,7 @@ for i in range(num_mixes):
     sol2_vol = tot_vol - sol1_vol
     oss.transfer(exp_id, sol1_vol, sol1_id, loc_id[i])
     oss.transfer(exp_id, sol2_vol, sol2_id, loc_id[i])
-    oss.mix(exp_id, loc_id[i])
+    oss.mix(exp_id, loc_id[i], tot_vol)
     
 # analyze each well
 absorbance = oss.measure_absorbance(exp_id, loc_id, wavelength)

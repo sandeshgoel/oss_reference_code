@@ -4,7 +4,7 @@ from  oss_utils import Location, LocationId, Equipment, Labware, logger
 class Operator:
     
     def command(self, command: str):
-        logger.debug("OP: %s", command)
+        logger.debug("\tOP: %s", command)
         
     # def place(self, dest: Location):
     #     logger.debug("OP: place %s", dest) 
