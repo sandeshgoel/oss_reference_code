@@ -248,7 +248,7 @@ class OSS:
         Args:
             exp_id (int): Experiment id
             vol (int): Volume of the solution to load
-            solution (str): Name of the solution to load
+            solution (Reagent): Name of the solution to load
             dest_id (LocationId): Location id of the destination
 
         Raises:
@@ -279,6 +279,7 @@ class OSS:
                  dest_id: LocationId | list[LocationId], discard_tip:bool = True):
         """
         Transfer a given volume of a solution from a source location id to a destination location id (or a list of destination location ids).
+        TODO: details of the transfer
 
         Args:
             exp_id (int): Experiment id
@@ -290,12 +291,12 @@ class OSS:
         Raises:
             Exception: Source location does not exist
         """
-        logger.info(f"OSS: Experiment {exp_id}: Transfer {vol}ul from {source_id} to {dest_id}")
-
         # dest_id could be a single location id or a list of location ids 
         # always convert dest_id to list for uniform handling from here on
         if not isinstance(dest_id, list):
             dest_id = [dest_id]
+
+        logger.info(f"OSS: Experiment {exp_id}: Transfer {vol}ul from {source_id} to {[str(id) for id in dest_id]}")
 
         exp = self.__get_experiment(exp_id)
         

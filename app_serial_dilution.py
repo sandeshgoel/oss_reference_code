@@ -29,8 +29,7 @@ oss.load(exp_id, base_vol*num_wells, base, base_id)
 oss.load(exp_id, stock_vol, stock, stock_id)
     
 # transfer base solvent to each well
-for i in range(num_wells):     
-    oss.transfer(exp_id, base_vol, base_id, loc_id[i])
+oss.transfer(exp_id, base_vol, base_id, loc_id)
 
 # transfer stock solution to first well and mix
 oss.transfer(exp_id, stock_vol, stock_id, loc_id[0])
