@@ -243,7 +243,8 @@ class OSS:
     def load(self, exp_id: int, vol: int, solution: Reagent, dest_id: LocationId):
         """
         Load a given volume of a solution to a specified location id. 
-        The physical location is always a reservoir.
+        The physical location is always a reservoir, which is placed in an
+        empty slot in a liquid handler.
 
         Args:
             exp_id (int): Experiment id
@@ -279,7 +280,9 @@ class OSS:
                  dest_id: LocationId | list[LocationId], discard_tip:bool = True):
         """
         Transfer a given volume of a solution from a source location id to a destination location id (or a list of destination location ids).
-        TODO: details of the transfer
+        
+        Use a wellplate if multiple destinations are specified, otherwise use the best
+        fitting labware.
 
         Args:
             exp_id (int): Experiment id
@@ -330,6 +333,9 @@ class OSS:
         """
         Mix a specified volume of liquid at a given destination location a certain number of times.
 
+        The function ensures the destination is within a liquid handler. If not, it moves the 
+        destination to the liquid handler, performs the mix operation the specified number of times, and then returns the destination to its original location if necessary.
+
         Args:
             exp_id (int): Experiment ID.
             dest_id (LocationId): The location ID where the mixing should occur.
@@ -338,10 +344,6 @@ class OSS:
 
         Raises:
             Exception: If the destination location does not exist.
-
-        The function ensures the destination is within a liquid handler. If not, it moves the 
-        destination to the liquid handler, performs the mix operation the specified number of times, 
-        and then returns the destination to its original location if necessary.
         """
 
         logger.info(f"OSS: Experiment {exp_id}: Mix {dest_id} {mix_count} times")
