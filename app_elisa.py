@@ -110,7 +110,7 @@ oss.incubate(exp_id, loc_id, incubate_temp, incubate_time, dark=True)
 oss.transfer(exp_id, stop_solution_vol, stop_id, loc_id)
     
 # measure absorbance
-absorbance = oss.measure_absorbance(exp_id, loc_id, wavelength)
+absorbance = oss.measure_absorbance(exp_id, loc_id, (wavelength, wavelength))
 
 # terminate the experiment
 oss.experiment_end(exp_id)

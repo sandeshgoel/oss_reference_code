@@ -2,7 +2,7 @@ import datetime
 import operator_lib
 import lh_lib
 from oss_utils import Location, LocationId, Equipment, Labware, Reagent
-from oss_utils import LH_MAX_SLOTS, WELLPLATE_MAX_WELLS, WELLPLATE_ROW_SIZE
+from oss_utils import LH_MAX_SLOTS, WELLPLATE_MAX_WELLS, WORKBENCH_MAX_SLOTS
 from oss_utils import well_id_int_to_str, well_id_str_to_int, logger
 
 # ===================================================================
@@ -97,6 +97,19 @@ class Experiment:
         else:
             raise Exception("Location does not exist")
         
+    # find an empty slot in the workbench
+    def get_empty_workbench_slot(self) -> int | None:
+        """
+        Find an empty slot in the workbench.
+
+        Returns:
+        int | None: The empty slot number if found, None otherwise.
+        """
+        for slot in range(WORKBENCH_MAX_SLOTS):
+            if slot not in self.location_map:
+                return slot
+        return None
+    
     # find an empty slot in the liquid handler
     def get_empty_slot(self) -> int | None:
         """
@@ -134,8 +147,7 @@ class Experiment:
                 well_str = well_id_int_to_str(well)
                 if well_str not in slot_well_list[slot]:
                     return Location(Equipment.liquid_handler, slot, Labware.wellplate, well_str)
-        return None
-        
+        return None    
               
 # ===================================================================
 # OSS class definition
@@ -306,7 +318,7 @@ class OSS:
         if not exp.is_exist_location(source_id):
             raise Exception("Source location does not exist")
         
-        # TODO: attach tip to pipette if needed
+        # TODO: get tip rack and attach tip to pipette if needed
         
         # for each dest_id, map it to physical location if needed
         for id in dest_id:
@@ -388,17 +400,132 @@ class OSS:
         logger.info(f"OSS: Experiment {exp_id}: Wash {target_id}")
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
+        # move this to a higher level composite function call
                 
     def incubate(self, exp_id: int, target_id: list[LocationId], temperature: int, time: int, dark:bool = False):
         logger.info(f"OSS: Experiment {exp_id}: Incubate {[str(id) for id in target_id]} at {temperature} degrees for {time} minutes")
         exp = self.__get_experiment(exp_id)
         # TODO: procedure
         
-    def measure_absorbance(self, exp_id: int, target_id: list[LocationId], wavelength: int) -> list[int]:
-        logger.info(f"OSS: Experiment {exp_id}: Measure absorbance of {[str(id) for id in target_id]} at {wavelength} nm")
-        exp = self.__get_experiment(exp_id)
-        # TODO: procedure
+        # rack with slots
+        #
+        
+    def measure_absorbance(self, exp_id: int, target_id: list[LocationId], 
+                           wavelength_range: tuple[int, int], 
+                           blank_id: list[LocationId] = [],
+                           quantification_wavelength: int = 0,
+                           quantify_concentration: bool = False,
+                           reference_wavelength: int = 0,
+                           scan_resolution: int = 5,
+                           measurement_mode: str = 'endpoint',
+                           averaging_time: int = 10,
+                           read_direction: str = 'row',
+                           read_location: str = 'top',
+                           temperature: int | str= 'ambient',
+                           equilibration_time: int = 10,
+                           plate_reader_mix: str = "auto",
+                           plate_reader_mix_mode: str = 'auto',
+                           plate_reader_mix_rate: int | str = 'auto',
+                           plate_reader_mix_time: int | str = 'auto',
+                           mix_settle_time: int = 10,
+                           retain_cover: bool = False,
+                           num_readings: int = 1
+                           ) -> list[int]:
+        """
+        Measure absorbance of a specified wavelength range of the targets in the experiment.
 
+        The function moves the target locations to the spectroscope, sets the parameters using the spectroscope's UI, and waits for the measurement to finish.
+
+        If all target locations are in the same well plate, the function measures all at once. Otherwise, it measures one by one by tranferring to a cuvette.
+        
+        After measurement, the original labware is placed on the workbench.
+
+        Args:
+            exp_id (int): Experiment id
+            target_id (list[LocationId]): List of location ids of the targets to be measured
+            wavelength_range (tuple[int, int]): Tuple of two integers representing the start and end of the wavelength range in nm
+            blank_id (list[LocationId], optional): List of location ids of the blank wells to be measured. Defaults to [].
+            quantification_wavelength (int, optional): Wavelength in nm at which the concentration should be quantified. Defaults to 0.
+            quantify_concentration (bool, optional): Whether to quantify the concentration. Defaults to False.
+            reference_wavelength (int, optional): Reference wavelength in nm. Defaults to 0.
+            scan_resolution (int, optional): Scan resolution in nm used in dual wavelength correction. Defaults to 5.
+            measurement_mode (str, optional): Measurement mode. Possible values: 'endpoint', 'kinetic', 'spectrum', 'dualread'. Defaults to 'endpoint'.
+            averaging_time (int, optional): Averaging time in seconds. Defaults to 10.
+            read_direction (str, optional): Read direction. Possible values: 'row', 'column', 'serpentinerow', 'serpentinecolumn'. Defaults to 'row'.
+            read_location (str, optional): Read location. Possible values: 'top', 'bottom', 'auto'. Defaults to 'top'.
+            temperature (int | str, optional): Temperature at which the measurement should be taken in degrees Celsius. Defaults to 'ambient'.
+            equilibration_time (int, optional): Equilibration time in seconds. Defaults to 10.
+            plate_reader_mix (str, optional): Plate reader mix. Possible values: 'auto', 'true', 'false'. Defaults to "auto".
+            plate_reader_mix_mode (str, optional): Plate reader mix mode. Possible values: 'auto', 'orbital', 'doubleorbital', 'linear'. Defaults to 'auto'.
+            plate_reader_mix_rate (int | str, optional): Plate reader mix rate in range 100-700 RPM. Defaults to 'auto'.
+            plate_reader_mix_time (int | str, optional): Plate reader mix time in range 1-3600 seconds. Defaults to 'auto'.
+            mix_settle_time (int, optional): Mix settle time in seconds. Defaults to 10.
+            retain_cover (bool, optional): Whether to retain the cover. Defaults to False.
+            num_readings (int, optional): Number of replicate readings. Defaults to 1.
+
+        Returns:
+            list[int]: List of measured absorbance values
+        """
+        logger.info(f"OSS: Experiment {exp_id}: Measure absorbance of {[str(id) for id in target_id]} at {wavelength_range} nm")
+        exp = self.__get_experiment(exp_id)
+        
+        # add blank well ids to the list of targets for measurement
+        target_id = target_id + blank_id
+        
+        # check if all target locations exist
+        if any([not exp.is_exist_location(id) for id in target_id]): 
+            raise Exception("Some Target location does not exist")
+
+        # check if all target locations are in the same well plate
+        if all([exp.get_location(id).labware == Labware.wellplate for id in target_id]):
+            # assume a single well plate, raise exception if not
+            if len(set([exp.get_location(id).slot for id in target_id])) > 1:
+                raise Exception("All target locations must be in the same well plate")
+            else:
+                dest = exp.get_location(target_id[0])
+                # if a single well plate, measure all at once
+                self._operator.command(f'Move {dest} to spectroscope')
+                self._operator.command(f'Select absorbance spectroscopy')
+                self._operator.command(f'Set all parameters using spectroscope"s UI')
+                self._operator.command(f'Press start button and wait for measurement to finish')
+                
+                # transfer wellplate to workbench
+                dest.equipment = Equipment.workbench
+                dest.slot = exp.get_empty_workbench_slot()
+                if dest.slot is None:
+                    raise Exception("No empty workbench slot")
+
+                # update location mapping for all location ids                
+                for id in target_id:
+                    dest.well_id = exp.get_location(id).well_id
+                    exp.release_location(id)
+                    exp.set_location(id, dest)
+
+                self._operator.command(f'Move wellplate to {dest}')
+        else:
+            # if not a single well plate, move each target to cuvette 
+            # and measure one by one
+            for id in target_id:
+                dest = exp.get_location(id)
+                # trasfer to cuvette and measure
+                self._operator.command(f'Move {dest} to cuvette')
+                self._operator.command(f'Move cuvette to spectroscope')
+                self._operator.command(f'Select absorbance spectroscopy')
+                self._operator.command(f'Set all parameters using spectroscope"s UI')
+                self._operator.command(f'Press start button and wait for measurement to finish')
+                
+                # find available slot in workbench 
+                dest.equipment = Equipment.workbench
+                dest.slot = exp.get_empty_workbench_slot()
+                if dest.slot is None:
+                    raise Exception("No empty workbench slot")
+                exp.release_location(id)
+                exp.set_location(id, dest)
+                
+                # transfer back to labware and move to workbench
+                self._operator.command(f'Move cuvette to {dest}')
+        
+        # TODO: map the results back to logical ids
         return [1] * len(target_id)
 
     # ---------------------------------------------------------------

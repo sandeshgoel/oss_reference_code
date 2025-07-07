@@ -15,6 +15,7 @@ logger = logging.getLogger()
 # Equipment class
 
 class Equipment(enum.Enum):
+    workbench = 0,
     liquid_handler = 1,
     incubator = 2,
     spectroscope = 3
@@ -22,6 +23,7 @@ class Equipment(enum.Enum):
     def __str__(self) -> str:
         return self.name
     
+WORKBENCH_MAX_SLOTS = 20
 LH_MAX_SLOTS = 12
 
 # -------------------------------------------------------------------

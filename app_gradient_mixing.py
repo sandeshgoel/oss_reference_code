@@ -38,7 +38,7 @@ for i in range(num_mixes):
     oss.mix(exp_id, loc_id[i], tot_vol)
     
 # analyze each well
-absorbance = oss.measure_absorbance(exp_id, loc_id, wavelength)
+absorbance = oss.measure_absorbance(exp_id, loc_id, (wavelength, wavelength))
 
 # terminate the experiment
 oss.experiment_end(exp_id)

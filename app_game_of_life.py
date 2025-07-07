@@ -63,7 +63,7 @@ for gen in range(num_generations):
                 oss.transfer(exp_id, vol, dead_id, loc_id[i*num_cols+j])
                     
     # measure absorbance in each cell
-    absorbance = oss.measure_absorbance(exp_id, loc_id, wavelength)            
+    absorbance = oss.measure_absorbance(exp_id, loc_id, (wavelength, wavelength))         
     for i in range(num_rows):
         for j in range(num_cols):
             if absorbance[i*num_cols+j]  > absorbance_threshold:
