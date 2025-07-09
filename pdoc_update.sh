@@ -1,1 +1,1 @@
-pdoc oss_lib.py --docformat google -o docs
+pdoc oss_lib.py researcher_lib.py --docformat google -o docs

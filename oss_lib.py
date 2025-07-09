@@ -288,6 +288,26 @@ class OSS:
         #self.operator.move(vol, solution, exp.get_location(dest_id))
         self._operator.command(f'Move {vol}ul of {solution} to {exp.get_location(dest_id)}')
 
+    def discard(self, exp_id: int, source_id: LocationId):
+        """
+        Discard the contents of a source location to a waste reservoir.
+
+        Args:
+            exp_id (int): Experiment id
+            source_id (LocationId): Location id of the source to be discarded
+
+        Raises:
+            Exception: Source location does not exist
+        """
+
+        logger.info(f"OSS: Experiment {exp_id}: Discard {source_id}")
+        exp = self.__get_experiment(exp_id)
+
+        if not exp.is_exist_location(source_id):
+            raise Exception("Source location does not exist")
+
+        self._operator.command(f'Discard {exp.get_location(source_id)} to waste reservoir')
+        
     def transfer(self, exp_id: int, vol: int, source_id: LocationId, 
                  dest_id: LocationId | list[LocationId], discard_tip:bool = True):
         """
@@ -385,23 +405,6 @@ class OSS:
             exp.set_location(dest_id, dest)
             self._operator.command(f'Move {lh_dest} to {dest}')        
         
-    
-    def wash(self, exp_id: int, target_id: LocationId):
-        """
-        Wash the specified target location id.
-
-        Args:
-            exp_id (int): Experiment id
-            target_id (LocationId): Location id of the target
-
-        Raises:
-            Exception: If the target location does not exist
-        """
-        logger.info(f"OSS: Experiment {exp_id}: Wash {target_id}")
-        exp = self.__get_experiment(exp_id)
-        # TODO: procedure
-        # move this to a higher level composite function call
-                
     def incubate(self, exp_id: int, target_id: list[LocationId], temperature: int, time: int, dark:bool = False):
         logger.info(f"OSS: Experiment {exp_id}: Incubate {[str(id) for id in target_id]} at {temperature} degrees for {time} minutes")
         exp = self.__get_experiment(exp_id)
@@ -436,7 +439,7 @@ class OSS:
 
         The function moves the target locations to the spectroscope, sets the parameters using the spectroscope's UI, and waits for the measurement to finish.
 
-        If all target locations are in the same well plate, the function measures all at once. Otherwise, it measures one by one by tranferring to a cuvette.
+        If all target locations are in the same well plate, the function measures all at once. Otherwise, it measures one by one by transferring to a cuvette.
         
         After measurement, the original labware is placed on the workbench.
 
@@ -464,7 +467,7 @@ class OSS:
             num_readings (int, optional): Number of replicate readings. Defaults to 1.
 
         Returns:
-            list[int]: List of measured absorbance values
+            list[int]: List of measured absorbance values corresponding to the target locations
         """
         logger.info(f"OSS: Experiment {exp_id}: Measure absorbance of {[str(id) for id in target_id]} at {wavelength_range} nm")
         exp = self.__get_experiment(exp_id)
@@ -476,6 +479,8 @@ class OSS:
         if any([not exp.is_exist_location(id) for id in target_id]): 
             raise Exception("Some Target location does not exist")
 
+        results = []
+        
         # check if all target locations are in the same well plate
         if all([exp.get_location(id).labware == Labware.wellplate for id in target_id]):
             # assume a single well plate, raise exception if not
@@ -488,6 +493,12 @@ class OSS:
                 self._operator.command(f'Select absorbance spectroscopy')
                 self._operator.command(f'Set all parameters using spectroscope"s UI')
                 self._operator.command(f'Press start button and wait for measurement to finish')
+
+                # TODO: Add wait here
+                
+                self._operator.command(f'Upload results to data folder')
+                # download the result file and map to logical ids
+                results = [1] * len(target_id)
                 
                 # transfer wellplate to workbench
                 dest.equipment = Equipment.workbench
@@ -513,6 +524,12 @@ class OSS:
                 self._operator.command(f'Select absorbance spectroscopy')
                 self._operator.command(f'Set all parameters using spectroscope"s UI')
                 self._operator.command(f'Press start button and wait for measurement to finish')
+
+                # TODO: Add wait here
+
+                self._operator.command(f'Upload results to data folder')
+                # download the result file and map to logical ids
+                results.append(1)
                 
                 # find available slot in workbench 
                 dest.equipment = Equipment.workbench
@@ -524,10 +541,9 @@ class OSS:
                 
                 # transfer back to labware and move to workbench
                 self._operator.command(f'Move cuvette to {dest}')
-        
-        # TODO: map the results back to logical ids
-        return [1] * len(target_id)
-
+                
+        return results
+    
     # ---------------------------------------------------------------
     
 # ===================================================================

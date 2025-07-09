@@ -1,8 +1,10 @@
 from oss_utils import LocationId, CustomReagent
 import oss_lib
+import researcher_lib
 
 # instantiate the class OSS
 oss = oss_lib.OSS()
+reslib = researcher_lib.ResearcherLib()
 
 # initialize the experiment
 exp_id = oss.experiment_init('Gradient Mixing')
@@ -67,40 +69,35 @@ oss.load(exp_id, stop_solution_vol*num_samples, stop_solution, stop_id)
 oss.transfer(exp_id, capture_antibody_vol, capture_id, loc_id)
     
 # wash plate
-for i in range(num_samples):
-    oss.wash(exp_id, loc_id[i])
+reslib.wash(exp_id, loc_id, wash_id, wash_buffer_vol)
     
 # block nonspecific sites
 oss.transfer(exp_id, blocking_buffer_vol, blocking_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
     
 # wash plate again
-for i in range(num_samples):
-    oss.wash(exp_id, loc_id[i])
+reslib.wash(exp_id, loc_id, wash_id, wash_buffer_vol)
 
 # add samples
 oss.transfer(exp_id, sample_vol, sample_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
     
 # wash plate
-for i in range(num_samples):
-    oss.wash(exp_id, loc_id[i])
+reslib.wash(exp_id, loc_id, wash_id, wash_buffer_vol)
 
 # add detection antibody
 oss.transfer(exp_id, detection_antibody_vol, detection_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
 
 # wash plate
-for i in range(num_samples):
-    oss.wash(exp_id, loc_id[i])
+reslib.wash(exp_id, loc_id, wash_id, wash_buffer_vol)
 
 # add enzyme-conjugate
 oss.transfer(exp_id, conjugate_vol, conjugate_id, loc_id)
 oss.incubate(exp_id, loc_id, incubate_temp, incubate_time)
     
 # wash plate
-for i in range(num_samples):
-    oss.wash(exp_id, loc_id[i])
+reslib.wash(exp_id, loc_id, wash_id, wash_buffer_vol)
 
 # add substrate
 oss.transfer(exp_id, substrate_vol, substrate_id, loc_id)
