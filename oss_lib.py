@@ -4,6 +4,7 @@ import lh_lib
 from oss_utils import Location, LocationId, Equipment, Labware, Reagent
 from oss_utils import LH_MAX_SLOTS, WELLPLATE_MAX_WELLS, WORKBENCH_MAX_SLOTS
 from oss_utils import well_id_int_to_str, well_id_str_to_int, logger
+import time
 
 # ===================================================================
 # Experiment class definition    
@@ -160,7 +161,9 @@ class OSS:
     _exp_list = {}
     _operator = operator_lib.Operator()
     _lh = lh_lib.LiquidHandler()
-    
+    _waste_reservoir = Location(Equipment.liquid_handler, 0, Labware.waste_reservoir, "")
+    _results_not_ready = False
+              
     # ---------------------------------------------------------------
     # Experiment control functions
 
@@ -247,7 +250,7 @@ class OSS:
                 raise Exception("No empty slot in liquid handler")
             return Location(equipment=Equipment.liquid_handler, slot=empty_slot, 
                             labware=best_fit, well_id='A0'), True
-                
+          
     # ---------------------------------------------------------------
     # Experiment actions 
     
@@ -288,13 +291,15 @@ class OSS:
         #self.operator.move(vol, solution, exp.get_location(dest_id))
         self._operator.command(f'Move {vol}ul of {solution} to {exp.get_location(dest_id)}')
 
-    def discard(self, exp_id: int, source_id: LocationId):
+    def discard(self, exp_id: int, vol: int, source_id: LocationId, release_labware: bool = False):
         """
-        Discard the contents of a source location to a waste reservoir.
+        Discard a given volume of a liquid from a specified location id, and optionally discard the labware.
 
         Args:
             exp_id (int): Experiment id
+            vol (int): Volume of the liquid to be discarded
             source_id (LocationId): Location id of the source to be discarded
+            release_labware (bool, optional): Whether to release the labware from the source location. Defaults to False.
 
         Raises:
             Exception: Source location does not exist
@@ -306,7 +311,21 @@ class OSS:
         if not exp.is_exist_location(source_id):
             raise Exception("Source location does not exist")
 
-        self._operator.command(f'Discard {exp.get_location(source_id)} to waste reservoir')
+        if exp.get_location(source_id).equipment == Equipment.liquid_handler:
+            # if source is in LH, transfer within LH
+            self._lh.move_pipette(exp.get_location(source_id))
+            self._lh.aspirate(vol)
+            self._lh.move_pipette(self._waste_reservoir)
+            self._lh.dispense(vol)
+        else:
+            # Ask operator to discard the contents
+            self._operator.command(f'Discard {exp.get_location(source_id)} contents to waste reservoir')
+        
+        if release_labware:
+            # Ask operator to return labware to storage
+            self._operator.command(f'Return {exp.get_location(source_id)} to storage')
+            # Release the location
+            exp.remove_location(source_id)
         
     def transfer(self, exp_id: int, vol: int, source_id: LocationId, 
                  dest_id: LocationId | list[LocationId], discard_tip:bool = True):
@@ -493,11 +512,13 @@ class OSS:
                 self._operator.command(f'Select absorbance spectroscopy')
                 self._operator.command(f'Set all parameters using spectroscope"s UI')
                 self._operator.command(f'Press start button and wait for measurement to finish')
+                self._operator.command(f'Upload results to data folder when ready')
 
-                # TODO: Add wait here
-                
-                self._operator.command(f'Upload results to data folder')
-                # download the result file and map to logical ids
+                # Wait for result file to be ready
+                while(self._results_not_ready):
+                    time.sleep(1)
+                    
+                # download the result file and map it back to logical ids
                 results = [1] * len(target_id)
                 
                 # transfer wellplate to workbench
@@ -524,11 +545,13 @@ class OSS:
                 self._operator.command(f'Select absorbance spectroscopy')
                 self._operator.command(f'Set all parameters using spectroscope"s UI')
                 self._operator.command(f'Press start button and wait for measurement to finish')
+                self._operator.command(f'Upload results to data folder when ready')
 
-                # TODO: Add wait here
-
-                self._operator.command(f'Upload results to data folder')
-                # download the result file and map to logical ids
+                # Wait for result file to be ready
+                while(self._results_not_ready):
+                    time.sleep(1)
+                    
+                # download the result file and map it back to logical ids
                 results.append(1)
                 
                 # find available slot in workbench 

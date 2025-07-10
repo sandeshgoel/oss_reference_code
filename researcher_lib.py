@@ -43,5 +43,5 @@ class ResearcherLib:
                 self._oss.mix(exp_id, id, mix_volume, mix_cycles)
 
                 # Step 4: Discard to waste
-                self._oss.discard(exp_id, id)
+                self._oss.discard(exp_id, wash_volume, id)
                 

@@ -37,6 +37,7 @@
         experiment_init
         experiment_end
         load
+        discard
         transfer
         mix
         incubate
@@ -46,6 +47,15 @@
 ### oss_utils.py
     This includes some utility class definitions and other functions which 
     support the main libraries
+
+## Researcher library
+
+### researcher_lib.py
+    This impelemnts utility wrapper functions built on top of technician APIs.
+    Following functions are supported:
+
+        wash
+
 
 ## Stub functions for operator, liquid handler etc
 

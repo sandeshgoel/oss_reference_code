@@ -30,6 +30,7 @@ LH_MAX_SLOTS = 12
 # Labware class
 
 class Labware (enum.Enum):
+    waste_reservoir = 0,
     reservoir = 1,
     wellplate = 2,
     testtube = 3,
