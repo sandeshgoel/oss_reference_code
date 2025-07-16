@@ -293,7 +293,7 @@ class OSS:
 
     def discard(self, exp_id: int, vol: int, source_id: LocationId, release_labware: bool = False):
         """
-        Discard a given volume of a liquid from a specified location id, and optionally discard the labware.
+        Discard a given volume of a liquid from a specified location id, and optionally release the labware.
 
         Args:
             exp_id (int): Experiment id
@@ -387,6 +387,8 @@ class OSS:
         The function ensures the destination is within a liquid handler. If not, it moves the 
         destination to the liquid handler, performs the mix operation the specified number of times, and then returns the destination to its original location if necessary.
 
+        Discard the tip after the mix operation.
+        
         Args:
             exp_id (int): Experiment ID.
             dest_id (LocationId): The location ID where the mixing should occur.
@@ -422,7 +424,10 @@ class OSS:
         # move it back to original location
         if dest.equipment != Equipment.liquid_handler:
             exp.set_location(dest_id, dest)
-            self._operator.command(f'Move {lh_dest} to {dest}')        
+            self._operator.command(f'Move {lh_dest} to {dest}')    
+            
+        # discard tip
+        self._lh.discard_tip()    
         
     def incubate(self, exp_id: int, target_id: list[LocationId], temperature: int, time: int, dark:bool = False):
         logger.info(f"OSS: Experiment {exp_id}: Incubate {[str(id) for id in target_id]} at {temperature} degrees for {time} minutes")
