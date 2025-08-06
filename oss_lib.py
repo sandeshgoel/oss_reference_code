@@ -163,6 +163,7 @@ class OSS:
     _lh = lh_lib.LiquidHandler()
     _waste_reservoir = Location(Equipment.liquid_handler, 0, Labware.waste_reservoir, "")
     _results_not_ready = False
+    _incubation_not_complete = False
               
     # ---------------------------------------------------------------
     # Experiment control functions
@@ -328,7 +329,8 @@ class OSS:
             exp.remove_location(source_id)
         
     def transfer(self, exp_id: int, vol: int, source_id: LocationId, 
-                 dest_id: LocationId | list[LocationId], discard_tip:bool = True):
+                 dest_id: LocationId | list[LocationId], discard_tip:bool = True, 
+                 dest_id_list: list[LocationId] | None = None):
         """
         Transfer a given volume of a solution from a source location id to a destination location id (or a list of destination location ids).
         
@@ -341,6 +343,7 @@ class OSS:
             source_id (LocationId): Location id of the source
             dest_id (LocationId | list[LocationId]): Location id of the destination(s)
             discard_tip (bool, optional): Whether to discard the tip after the transfer. Defaults to True.
+            dest_id_list (list[LocationId], optional): If a single dest_id is provided, but it is a part of a list, then the list is passed here. Defaults to None.
 
         Raises:
             Exception: Source location does not exist
@@ -362,7 +365,7 @@ class OSS:
         # for each dest_id, map it to physical location if needed
         for id in dest_id:
             if not exp.is_exist_location(id):
-                dest, is_new = self.__decide_location(exp, vol, len(dest_id))
+                dest, is_new = self.__decide_location(exp, vol, len(dest_id) if dest_id_list is None else len(dest_id_list))
                 exp.set_location(id, dest)
 
                 # operator: prepare the destination
@@ -429,14 +432,31 @@ class OSS:
         # discard tip
         self._lh.discard_tip()    
         
-    def incubate(self, exp_id: int, target_id: list[LocationId], temperature: int, time: int, dark:bool = False):
-        logger.info(f"OSS: Experiment {exp_id}: Incubate {[str(id) for id in target_id]} at {temperature} degrees for {time} minutes")
+    def incubate(self, exp_id: int, target_id: list[LocationId], temperature: int, duration: int, dark:bool = False):
+        """
+        Incubate a list of target location ids at a given temperature for a given duration of time.
+
+        The function waits for the incubation to complete before returning.
+
+        Args:
+            exp_id (int): Experiment id
+            target_id (list[LocationId]): List of location ids to incubate
+            temperature (int): Temperature to incubate at
+            duration (int): Duration of incubation in minutes
+            dark (bool, optional): Whether to incubate in the dark. Defaults to False.
+
+        Raises:
+            Exception: If experiment id does not exist
+        """
+        logger.info(f"OSS: Experiment {exp_id}: Incubate {[str(id) for id in target_id]} at {temperature} degrees for {duration} minutes")
         exp = self.__get_experiment(exp_id)
-        # TODO: procedure
         
-        # rack with slots
-        #
-        
+        self._operator.command(f'Incubate {[str(id) for id in target_id]} at {temperature} degrees for {duration} minutes')
+
+        # Wait for incubation to complete
+        while(self._incubation_not_complete):
+            time.sleep(1)
+                    
     def measure_absorbance(self, exp_id: int, target_id: list[LocationId], 
                            wavelength_range: tuple[int, int], 
                            blank_id: list[LocationId] = [],
