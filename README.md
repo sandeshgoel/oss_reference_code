@@ -86,3 +86,7 @@
     The documentation is hosted as a github page at the following url:
     https://sandeshgoel.github.io/oss_reference_code/
 
+## Preprocessing
+
+### preprocess.py
+    Sample code to preprocess a researcher python script

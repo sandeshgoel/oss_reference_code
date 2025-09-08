@@ -457,26 +457,23 @@ class OSS:
         while(self._incubation_not_complete):
             time.sleep(1)
                     
-    def measure_absorbance(self, exp_id: int, target_id: list[LocationId], 
+    def measure_absorbance(self, exp_id: int, 
+                           target_id: list[LocationId], 
                            wavelength_range: tuple[int, int], 
                            blank_id: list[LocationId] = [],
-                           quantification_wavelength: int = 0,
-                           quantify_concentration: bool = False,
+                           scan_step: int = 5,
                            reference_wavelength: int = 0,
-                           scan_resolution: int = 5,
-                           measurement_mode: str = 'endpoint',
-                           averaging_time: int = 10,
+                           wait_time: int = 10,
                            read_direction: str = 'row',
                            read_location: str = 'top',
                            temperature: int | str= 'ambient',
-                           equilibration_time: int = 10,
-                           plate_reader_mix: str = "auto",
-                           plate_reader_mix_mode: str = 'auto',
-                           plate_reader_mix_rate: int | str = 'auto',
-                           plate_reader_mix_time: int | str = 'auto',
+                           plate_reader_shake_mode: str = 'endpoint',
+                           shake: str = "auto",
+                           shake_frequency: int | str = 'auto',
+                           shake_amplitude: int =  2,
+                           shake_duration: int | str = 'auto',
                            mix_settle_time: int = 10,
                            retain_cover: bool = False,
-                           num_readings: int = 1
                            ) -> list[int]:
         """
         Measure absorbance of a specified wavelength range of the targets in the experiment.
@@ -492,23 +489,19 @@ class OSS:
             target_id (list[LocationId]): List of location ids of the targets to be measured
             wavelength_range (tuple[int, int]): Tuple of two integers representing the start and end of the wavelength range in nm
             blank_id (list[LocationId], optional): List of location ids of the blank wells to be measured. Defaults to [].
-            quantification_wavelength (int, optional): Wavelength in nm at which the concentration should be quantified. Defaults to 0.
-            quantify_concentration (bool, optional): Whether to quantify the concentration. Defaults to False.
+            scan_step (int, optional): Scan resolution in nm used in dual wavelength correction. Defaults to 5.
             reference_wavelength (int, optional): Reference wavelength in nm. Defaults to 0.
-            scan_resolution (int, optional): Scan resolution in nm used in dual wavelength correction. Defaults to 5.
-            measurement_mode (str, optional): Measurement mode. Possible values: 'endpoint', 'kinetic', 'spectrum', 'dualread'. Defaults to 'endpoint'.
-            averaging_time (int, optional): Averaging time in seconds. Defaults to 10.
+            wait_time (int, optional): Wait time in seconds. Defaults to 10.
             read_direction (str, optional): Read direction. Possible values: 'row', 'column', 'serpentinerow', 'serpentinecolumn'. Defaults to 'row'.
             read_location (str, optional): Read location. Possible values: 'top', 'bottom', 'auto'. Defaults to 'top'.
             temperature (int | str, optional): Temperature at which the measurement should be taken in degrees Celsius. Defaults to 'ambient'.
-            equilibration_time (int, optional): Equilibration time in seconds. Defaults to 10.
-            plate_reader_mix (str, optional): Plate reader mix. Possible values: 'auto', 'true', 'false'. Defaults to "auto".
-            plate_reader_mix_mode (str, optional): Plate reader mix mode. Possible values: 'auto', 'orbital', 'doubleorbital', 'linear'. Defaults to 'auto'.
-            plate_reader_mix_rate (int | str, optional): Plate reader mix rate in range 100-700 RPM. Defaults to 'auto'.
-            plate_reader_mix_time (int | str, optional): Plate reader mix time in range 1-3600 seconds. Defaults to 'auto'.
+            plate_reader_shake_mode (str, optional): Shake mode. Possible values: 'endpoint', 'kinetic', 'spectrum', 'dualread'. Defaults to 'endpoint'.
+            shake (str, optional): Plate reader mix. Possible values: 'auto', 'true', 'false'. Defaults to "auto".
+            shake_frequency (int | str, optional): Plate reader mix rate in range 100-700 RPM. Defaults to 'auto'.
+            shake_amplitude (int, optional): Plate reader mix amplitude in range 1-3 mm. Defaults to 2.
+            shake_duration (int | str, optional): Plate reader mix time in range 1-3600 seconds. Defaults to 'auto'.
             mix_settle_time (int, optional): Mix settle time in seconds. Defaults to 10.
             retain_cover (bool, optional): Whether to retain the cover. Defaults to False.
-            num_readings (int, optional): Number of replicate readings. Defaults to 1.
 
         Returns:
             list[int]: List of measured absorbance values corresponding to the target locations
