@@ -87,6 +87,11 @@ for gen in range(num_generations):
                 wells[i][j] = 0
             elif live_neighbors == 3:
                 wells[i][j] = 1
-                
+            
+    # discard solutions from all wells    
+    for i in range(num_rows):
+        for j in range(num_cols):
+            oss.discard(exp_id, vol, loc_id[i*num_cols+j], release_labware=True)
+            
 # terminate the experiment
 oss.experiment_end(exp_id)  

@@ -57,7 +57,7 @@ stop_id = LocationId('stop')
 
 # load solutions
 oss.load(exp_id, capture_antibody_vol*num_samples, capture_antibody, capture_id)
-oss.load(exp_id, wash_buffer_vol*num_samples*5, wash_buffer, wash_id)
+oss.load(exp_id, wash_buffer_vol*num_samples*5*3, wash_buffer, wash_id)
 oss.load(exp_id, blocking_buffer_vol*num_samples, blocking_buffer, blocking_id)
 oss.load(exp_id, detection_antibody_vol*num_samples, detection_antibody, detection_id)
 oss.load(exp_id, sample_vol*num_samples, sample, sample_id)
