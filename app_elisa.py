@@ -7,7 +7,7 @@ oss = oss_lib.OSS()
 reslib = researcher_lib.ResearcherLib()
 
 # initialize the experiment
-exp_id = oss.experiment_init('Gradient Mixing')
+exp_id = oss.experiment_init('Elisa Assay')
 
 # parameters of the experiment
 num_samples = 8
