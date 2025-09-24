@@ -5,7 +5,7 @@ import logging
 # Logger initialization
 
 logging.basicConfig(
-    level=logging.DEBUG, 
+    level=logging.INFO, 
     format='%(asctime)s %(message)s',
     handlers=[logging.FileHandler('oss.log'), logging.StreamHandler()]
     )
