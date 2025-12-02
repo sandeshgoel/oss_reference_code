@@ -1,4 +1,4 @@
-from oss_utils import LocationId, CustomReagent
+from oss_utils import LocationId, ResearcherMaterial
 import oss_lib
 
 # instantiate the class OSS
@@ -11,8 +11,8 @@ exp_id = oss.experiment_init('Game of Life')
 num_rows = 8
 num_cols = 8
 initial_live = [(3, 3), (4, 4),(3,4), (5,5), (4,5)]
-live_sol = CustomReagent('live solution')
-dead_sol = CustomReagent('dead solution')
+live_sol = ResearcherMaterial('live solution')
+dead_sol = ResearcherMaterial('dead solution')
 vol = 10
 num_generations = 10
 absorbance_threshold = 5

@@ -1,7 +1,7 @@
 import datetime
 import operator_lib
 import lh_lib
-from oss_utils import Location, LocationId, Equipment, Labware, Reagent
+from oss_utils import Location, LocationId, Equipment, Labware, Material
 from oss_utils import LH_MAX_SLOTS, WELLPLATE_MAX_WELLS, WORKBENCH_MAX_SLOTS
 from oss_utils import well_id_int_to_str, well_id_str_to_int, logger
 import time
@@ -256,7 +256,7 @@ class OSS:
     # Experiment actions 
     
     #
-    def load(self, exp_id: int, vol: int, solution: Reagent, dest_id: LocationId):
+    def load(self, exp_id: int, vol: int, solution: Material, dest_id: LocationId):
         """
         Load a given volume of a solution to a specified location id. 
         The physical location is always a reservoir, which is placed in an
@@ -265,7 +265,7 @@ class OSS:
         Args:
             exp_id (int): Experiment id
             vol (int): Volume of the solution to load
-            solution (Reagent): Name of the solution to load
+            solution (Material): Name of the solution to load
             dest_id (LocationId): Location id of the destination
 
         Raises:
@@ -326,7 +326,7 @@ class OSS:
             # Ask operator to return labware to storage
             self._operator.command(f'Return {exp.get_location(source_id)} to storage')
             # Release the location
-            exp.remove_location(source_id)
+            exp.release_location(source_id)
         
     def transfer(self, exp_id: int, vol: int, source_id: LocationId, 
                  dest_id: LocationId | list[LocationId], discard_tip:bool = True, 

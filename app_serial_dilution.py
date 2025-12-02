@@ -1,4 +1,4 @@
-from oss_utils import LocationId, CustomReagent
+from oss_utils import LocationId, ResearcherMaterial
 import oss_lib
 
 # instantiate the class OSS
@@ -9,8 +9,8 @@ exp_id = oss.experiment_init('Serial Dilution')
 
 # parameters of the experiment
 num_wells = 8
-base = CustomReagent('base_solvent')
-stock = CustomReagent('my_reagent')
+base = ResearcherMaterial('base_solvent')
+stock = ResearcherMaterial('my_reagent')
 base_vol = 9
 stock_vol = 1
 wavelength = 900

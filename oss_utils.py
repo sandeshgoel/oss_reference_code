@@ -37,7 +37,9 @@ class Labware (enum.Enum):
     cuvette = 4
 
     def max_capacity(self) -> int:
-        if self == Labware.reservoir:
+        if self == Labware.waste_reservoir:
+            return 0
+        elif self == Labware.reservoir:
             return 1000
         elif self == Labware.wellplate:
             return 50
@@ -49,7 +51,9 @@ class Labware (enum.Enum):
             raise Exception("Unknown labware")
         
     def min_capacity(self) -> int:
-        if self == Labware.reservoir:
+        if self == Labware.waste_reservoir:
+            return 0
+        elif self == Labware.reservoir:
             return 50
         elif self == Labware.wellplate:
             return 10
@@ -103,7 +107,7 @@ class LocationId:
 
 from abc import ABC
 
-class Reagent(ABC):
+class Material(ABC):
     """Abstract base class for all reagents"""
     
     def __init__(self, name: str):
@@ -112,7 +116,7 @@ class Reagent(ABC):
     def __str__(self) -> str:
         return f"{self.name}"
     
-class StandardReagent(Reagent):
+class LabMaterial(Material):
     """Predefined standard reagents"""
     
     # Predefined list of standard reagents
@@ -125,6 +129,7 @@ class StandardReagent(Reagent):
         'Hexane',
         'Heptane',
         'Octane',
+        'Dye',
     ]
     
     def __init__(self, name: str):
@@ -139,7 +144,7 @@ class StandardReagent(Reagent):
         return cls.STANDARD_REAGENTS.copy()
 
 
-class CustomReagent(Reagent):
+class ResearcherMaterial(Material):
     """User-defined custom reagents"""
     
     def __init__(self, name: str):

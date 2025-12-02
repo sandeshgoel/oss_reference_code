@@ -1,4 +1,4 @@
-from oss_utils import LocationId, CustomReagent
+from oss_utils import LocationId, ResearcherMaterial
 import oss_lib
 
 # instantiate the class OSS
@@ -8,8 +8,8 @@ oss = oss_lib.OSS()
 exp_id = oss.experiment_init('Gradient Mixing')
 
 # parameters of the experiment
-sol1 = CustomReagent('solution 1')
-sol2 = CustomReagent('solution 2')
+sol1 = ResearcherMaterial('solution 1')
+sol2 = ResearcherMaterial('solution 2')
 tot_vol = 100
 num_mixes = 8
 lowest_percent = 10

@@ -1,4 +1,4 @@
-from oss_utils import LocationId, CustomReagent
+from oss_utils import LocationId, ResearcherMaterial
 import oss_lib    
 #import oss_lib_stub as oss_lib    
 import researcher_lib
@@ -13,28 +13,28 @@ exp_id = oss.experiment_init('Elisa Assay')
 # parameters of the experiment
 num_samples = 8
 
-capture_antibody = CustomReagent('capture antibody')
+capture_antibody = ResearcherMaterial('capture antibody')
 capture_antibody_vol = 10
 
-wash_buffer = CustomReagent('wash buffer')
+wash_buffer = ResearcherMaterial('wash buffer')
 wash_buffer_vol = 10
 
-blocking_buffer = CustomReagent('blocking buffer')
+blocking_buffer = ResearcherMaterial('blocking buffer')
 blocking_buffer_vol = 10
 
-detection_antibody = CustomReagent('detection antibody')
+detection_antibody = ResearcherMaterial('detection antibody')
 detection_antibody_vol = 10
 
-sample = CustomReagent('sample')
+sample = ResearcherMaterial('sample')
 sample_vol = 10
 
-conjugate = CustomReagent('conjugate')
+conjugate = ResearcherMaterial('conjugate')
 conjugate_vol = 10
 
-substrate = CustomReagent('substrate')
+substrate = ResearcherMaterial('substrate')
 substrate_vol = 10
 
-stop_solution = CustomReagent('stop solution')
+stop_solution = ResearcherMaterial('stop solution')
 stop_solution_vol = 10
 
 incubate_temp = 37
